@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../SalesModule/SalesModule.Domain/SalesModule.Domain.csproj" />
+    <ProjectReference Include="../SalesModule/SalesModule.Infrastructure/SalesModule.Infrastructure.csproj" />
+
+    <ProjectReference Include="../Shared/BuildingBlocks/BuildingBlocks.csproj" />
+  </ItemGroup>
+
+</Project>

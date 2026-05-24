@@ -1,0 +1,16 @@
+
+services:
+  db:
+    image: postgis/postgis:16-3.5
+    container_name: postgis
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Your_password123
+      POSTGRES_DB: CRMDB
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:

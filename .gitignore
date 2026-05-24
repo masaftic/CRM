@@ -1,0 +1,24 @@
+# usual .net files
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.cache
+*.log
+*.pdb
+*.dll
+*.exe
+*.app
+*.db
+*.bak
+*.zip
+*.tar.gz
+*.vsix
+*.nupkg
+*.publishsettings
+*.publishproj
+*.publish.xml
+*.sln.docstates
+*.sln.ide
+*.sln.cache
