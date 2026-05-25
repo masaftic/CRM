@@ -38,7 +38,7 @@ public class Deal : AggregateRoot
     public List<StageSnapshot> SnapshotStages { get; init; } = [];
 
     public StageId CurrentStageId { get; private set; }
-    public StageSnapshot CurrentStage => SnapshotStages.First(s => s.Id == CurrentStageId);
+    public StageSnapshot CurrentStage => SnapshotStages.First(s => s.StageId == CurrentStageId);
 
     public Money ForecastedValue =>
         Outcome switch
@@ -55,6 +55,8 @@ public class Deal : AggregateRoot
 
     public DealOutcome Outcome { get; private set; } = DealOutcome.Open;
 
+    private Deal() { Id = default!; PipelineId = default!; CurrentStageId = default!; } // For ORM
+
     public Deal(DealId id, Guid contactId, Guid salesPersonId, string name, Money value, DateTime expectedCloseDate, Pipeline pipeline)
     {
         Id = id;
@@ -63,13 +65,13 @@ public class Deal : AggregateRoot
         Name = name;
         Value = value;
         ExpectedCloseDate = expectedCloseDate;
-        SnapshotStages = pipeline.GetOrderedStages().Select(s => new StageSnapshot(s.Id, s.PipelineId, s.Name, s.Order, s.Probability)).ToList();
+        SnapshotStages = pipeline.GetOrderedStages().Select(s => new StageSnapshot(id, s.Id, s.PipelineId, s.Name, s.Order, s.Probability)).ToList();
         PipelineId = pipeline.Id;
 
         if (SnapshotStages.Count == 0)
             throw new ArgumentException("Pipeline must have at least one stage.");
 
-        CurrentStageId = SnapshotStages[0].Id;
+        CurrentStageId = SnapshotStages[0].StageId;
 
         RaiseDomainEvent(new DealCreated(Id, ContactId));
     }
@@ -78,7 +80,7 @@ public class Deal : AggregateRoot
     {
         if (Outcome != DealOutcome.Open)
             throw new InvalidOperationException("Cannot move a deal that is not open.");
-        if (!SnapshotStages.Any(s => s.Id == newStageId))
+        if (!SnapshotStages.Any(s => s.StageId == newStageId))
             throw new InvalidOperationException("New stage must be part of the deal's pipeline.");
 
         var oldStageId = CurrentStageId;
@@ -97,20 +99,20 @@ public class Deal : AggregateRoot
 
     public void MoveForward()
     {
-        var currentIndex = SnapshotStages.FindIndex(s => s.Id == CurrentStageId);
+        var currentIndex = SnapshotStages.FindIndex(s => s.StageId == CurrentStageId);
         if (currentIndex == SnapshotStages.Count - 1)
             throw new InvalidOperationException("Deal is already in the last stage.");
 
-        TransitionToStage(SnapshotStages[currentIndex + 1].Id);
+        TransitionToStage(SnapshotStages[currentIndex + 1].StageId);
     }
 
     public void MoveBackward()
     {
-        var currentIndex = SnapshotStages.FindIndex(s => s.Id == CurrentStageId);
+        var currentIndex = SnapshotStages.FindIndex(s => s.StageId == CurrentStageId);
         if (currentIndex == 0)
             throw new InvalidOperationException("Deal is already in the first stage.");
 
-        TransitionToStage(SnapshotStages[currentIndex - 1].Id);
+        TransitionToStage(SnapshotStages[currentIndex - 1].StageId);
     }
 
     public void MarkAsWon()
@@ -149,7 +151,7 @@ public class Deal : AggregateRoot
     {
         if (Outcome == DealOutcome.Open)
             throw new InvalidOperationException("Deal is already open.");
-        if (!SnapshotStages.Any(s => s.Id == returnedToStageId))
+        if (!SnapshotStages.Any(s => s.StageId == returnedToStageId))
             throw new InvalidOperationException("Returned to stage must be part of the deal's pipeline.");
 
         Outcome = DealOutcome.Open;

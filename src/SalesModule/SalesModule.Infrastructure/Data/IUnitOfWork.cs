@@ -1,4 +1,3 @@
-
 using BuildingBlocks.Domain;
 
 namespace SalesModule.Infrastructure.Data;

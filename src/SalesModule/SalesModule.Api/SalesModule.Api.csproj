@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../SalesModule.Contracts/SalesModule.Contracts.csproj" />
+    <ProjectReference Include="../../Shared/Shared.Web/Shared.Web.csproj" />
+    <ProjectReference Include="../SalesModule.Infrastructure/SalesModule.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

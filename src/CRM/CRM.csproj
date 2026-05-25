@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../SalesModule/SalesModule.Domain/SalesModule.Domain.csproj" />
+    <ProjectReference Include="../SalesModule/SalesModule.Api/SalesModule.Api.csproj" />
     <ProjectReference Include="../SalesModule/SalesModule.Infrastructure/SalesModule.Infrastructure.csproj" />
 
     <ProjectReference Include="../Shared/BuildingBlocks/BuildingBlocks.csproj" />

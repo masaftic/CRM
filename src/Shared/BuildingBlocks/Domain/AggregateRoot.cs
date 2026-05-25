@@ -2,7 +2,8 @@ namespace BuildingBlocks.Domain;
 
 public interface IAggregate
 {
-
+    IReadOnlyList<IDomainEvent> DomainEvents { get; }
+    void ClearDomainEvents();
 }
 
 public class AggregateRoot : IAggregate

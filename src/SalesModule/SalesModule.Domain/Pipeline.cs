@@ -31,6 +31,8 @@ public class Pipeline : AggregateRoot
     private readonly List<Stage> _stages = [];
     public IReadOnlyList<Stage> Stages => _stages;
 
+    private Pipeline() { Id = default!; Name = string.Empty; } // For ORM
+
     public Pipeline(PipelineId id, string name, List<Stage> stages)
     {
         Id = id;
@@ -126,3 +128,4 @@ public class Pipeline : AggregateRoot
         }
     }
 }
+
