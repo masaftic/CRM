@@ -4,6 +4,8 @@ namespace SalesModule.Domain.Events;
 
 public record PipelineCreated(PipelineId PipelineId, string Name) : DomainEvent;
 
+public record PipelineUpdated(PipelineId PipelineId, string Name) : DomainEvent;
+
 public record StageAdded(PipelineId PipelineId, StageId StageId) : DomainEvent;
 
 public record StageRemoved(PipelineId PipelineId, StageId StageId) : DomainEvent;

@@ -101,6 +101,14 @@ public class Pipeline : AggregateRoot
         RaiseDomainEvent(new StageUpdated(Id, stageId));
     }
 
+    public void UpdateName(string name)
+    {
+        Name = name;
+        NormalizeAndValidate();
+
+        RaiseDomainEvent(new PipelineUpdated(Id, name));
+    }
+
     // -------------------------
     // Invariants
     // -------------------------
