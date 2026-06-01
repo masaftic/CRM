@@ -15,12 +15,3 @@ public class AggregateRoot : IAggregate
     public void ClearDomainEvents() => _domainEvents.Clear();
 }
 
-public interface IDomainEvent
-{
-    DateTimeOffset OccurredOn { get; }
-}
-
-public record DomainEvent : IDomainEvent
-{
-    public DateTimeOffset OccurredOn { get; init; } = DateTimeOffset.UtcNow;
-}

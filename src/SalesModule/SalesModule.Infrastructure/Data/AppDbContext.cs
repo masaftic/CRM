@@ -2,11 +2,13 @@ using BuildingBlocks.Domain;
 using SalesModule.Domain;
 using Microsoft.EntityFrameworkCore;
 using Thinktecture;
-using SalesModule.Infrastructure.Data.Outbox;
+using Shared.Infrastructure.Data;
+using Shared.Infrastructure.Data.Outbox;
 
 namespace SalesModule.Infrastructure.Data;
 
 public class SalesDbContext(DbContextOptions options) : DbContext(options),
+    IOutboxDbContext,
     IRepository<Deal, DealId>,
     IRepository<Pipeline, PipelineId>,
     IUnitOfWork

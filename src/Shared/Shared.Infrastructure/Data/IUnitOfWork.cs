@@ -1,6 +1,6 @@
 using BuildingBlocks.Domain;
 
-namespace SalesModule.Infrastructure.Data;
+namespace Shared.Infrastructure.Data;
 
 public interface IUnitOfWork
 {

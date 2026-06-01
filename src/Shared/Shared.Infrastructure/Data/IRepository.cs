@@ -1,4 +1,4 @@
-namespace SalesModule.Infrastructure.Data;
+namespace Shared.Infrastructure.Data;
 
 public interface IRepository<TAggregate, TKey>
 {
