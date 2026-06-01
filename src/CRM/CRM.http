@@ -1,6 +1,6 @@
 @CRM_HostAddress = http://localhost:5029
 
-POST {{CRM_HostAddress}}/pipelines
+POST {{CRM_HostAddress}}/sales/pipelines
 Accept: application/json
 Content-Type: application/json
 
@@ -26,3 +26,14 @@ Content-Type: application/json
 }
 
 ###
+
+
+POST {{CRM_HostAddress}}/sales/deals
+Accept: application/json
+Content-Type: application/json
+
+{
+    "name": "Deal 1",
+    "amount": 1000,
+    "pipelineId": "the-pipeline-id"
+}

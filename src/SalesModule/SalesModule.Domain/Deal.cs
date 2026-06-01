@@ -73,7 +73,7 @@ public class Deal : AggregateRoot
 
         CurrentStageId = SnapshotStages[0].StageId;
 
-        RaiseDomainEvent(new DealCreated(Id, ContactId));
+        RaiseDomainEvent(new DealCreated(Id, ContactId, Name, Value.Amount, PipelineId));
     }
 
     public void TransitionToStage(StageId newStageId)

@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
-using SalesModule.Contracts.Pipelines.Requests;
-using SalesModule.Contracts.Pipelines.Responses;
 using SalesModule.Domain;
-using SalesModule.Infrastructure.Data;
+using Shared.Infrastructure.Data;
 
 namespace SalesModule.Api.Features.Pipelines;
 
@@ -11,22 +9,15 @@ public static class DeletePipeline
 {
     public static async Task<Results<Ok, NotFound>> Handle(string pipelineId, IUnitOfWork uow)
     {
-        // Validate the pipelineId format
-        var validationError = PipelineId.Validate(pipelineId, null, out var validPipelineId);
-        if (validationError != null)
-        {
-            return TypedResults.NotFound();
-        }
-
         var repository = uow.GetRepository<Pipeline, PipelineId>();
-        var exists = await repository.TryFindAsync(validPipelineId) is not null;
+        var pipeline = await repository.TryFindAsync(PipelineId.Create(pipelineId));
 
-        if (!exists)
+        if (pipeline is null)
         {
             return TypedResults.NotFound();
         }
 
-        await repository.Delete(validPipelineId);
+        repository.Delete(pipeline);
         await uow.SaveChangesAsync();
 
         return TypedResults.Ok();

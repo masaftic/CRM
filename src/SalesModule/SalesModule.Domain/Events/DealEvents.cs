@@ -1,10 +1,8 @@
-
-
 using BuildingBlocks.Domain;
 
 namespace SalesModule.Domain.Events;
 
-public record DealCreated(DealId Id, Guid ContactId) : IDomainEvent
+public record DealCreated(DealId Id, Guid ContactId, string Name, decimal Amount, PipelineId PipelineId) : IDomainEvent
 {
     public DateTimeOffset OccurredOn { get; init; } = DateTimeOffset.UtcNow;
 }

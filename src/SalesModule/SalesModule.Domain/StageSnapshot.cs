@@ -4,7 +4,7 @@ namespace SalesModule.Domain;
 
 public class StageSnapshot
 {
-    public DealId DealId { get; init; }
+    public DealId DealId { get; init; } = null!;
     public StageId StageId { get; init; } = null!;
     public PipelineId PipelineId { get; init; } = null!;
     public string Name { get; init; } = string.Empty;

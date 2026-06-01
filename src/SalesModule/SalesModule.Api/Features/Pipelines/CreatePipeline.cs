@@ -1,15 +1,13 @@
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using SalesModule.Contracts.Pipelines.Requests;
-using SalesModule.Contracts.Pipelines.Responses;
 using SalesModule.Domain;
-using SalesModule.Infrastructure.Data;
+using Shared.Infrastructure.Data;
 
 namespace SalesModule.Api.Features.Pipelines;
 
 public static class CreatePipeline
 {
-    public static async Task<Ok<PipelineResponse>> Handle(CreatePipelineRequest request, IUnitOfWork uow)
+    public static async Task<IResult> Handle(CreatePipelineRequest request, IUnitOfWork uow)
     {
         var repository = uow.GetRepository<Pipeline, PipelineId>();
 
@@ -20,17 +18,6 @@ public static class CreatePipeline
         repository.Add(pipeline);
         await uow.SaveChangesAsync();
 
-        return TypedResults.Ok(new PipelineResponse
-        {
-            PipelineId = pipeline.Id,
-            Name = pipeline.Name,
-            Stages = pipeline.Stages.Select(s => new PipelineResponse.StageResponse
-            {
-                StageId = s.Id,
-                Name = s.Name,
-                Order = s.Order,
-                Probability = s.Probability
-            }).ToList()
-        });
+        return TypedResults.Ok(pipeline.ToResponse());
     } 
 }

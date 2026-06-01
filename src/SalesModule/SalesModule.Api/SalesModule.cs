@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SalesModule.Api.Features.Deals;
 using SalesModule.Api.Features.Pipelines;
+using SalesModule.Api.Features.Pipelines.Validators;
 using SalesModule.Infrastructure;
 using SalesModule.Infrastructure.Data;
 
@@ -13,6 +16,7 @@ public static class SalesModule
     public static IServiceCollection AddSalesModule(this IServiceCollection services, IConfiguration configuration)
     {
         services.Infrastructure(configuration);
+        services.AddValidatorsFromAssemblyContaining<CreatePipelineRequestValidator>();
 
         return services;
     }
@@ -26,9 +30,13 @@ public static class SalesModule
 
     public static WebApplication MapSalesModule(this WebApplication app)
     {
-        var group = app.MapGroup("/pipelines").WithGroupName("Pipelines");
+        var salesGroup = app.MapGroup("/sales").WithGroupName("Sales");
 
-        group.MapPipelineEndpoints();
+        var pipelinesGroup = salesGroup.MapGroup("/pipelines").WithGroupName("Pipelines");
+        pipelinesGroup.MapPipelineEndpoints();
+
+        var dealsGroup = salesGroup.MapGroup("/deals").WithGroupName("Deals");
+        dealsGroup.MapDealEndpoints();
 
         return app;
     }

@@ -1,6 +1,5 @@
 using FluentValidation;
 using SalesModule.Contracts.Pipelines.Requests;
-using SalesModule.Api.Features.Pipelines.Validators;
 
 namespace SalesModule.Api.Features.Pipelines.Validators;
 
