@@ -2,7 +2,7 @@ using Shared.Infrastructure.Data.Outbox;
 
 namespace Shared.Infrastructure.IntegrationEvents;
 
-public sealed class OutboxIntegrationEventPublisher(IOutboxWriter outboxWriter) : IIntegrationEventPublisher
+public sealed class OutboxIntegrationEventPublisher<TModule>(IOutboxWriter<TModule> outboxWriter) : IIntegrationEventPublisher<TModule>
 {
     public void Publish(object integrationEvent)
     {

@@ -1,5 +1,4 @@
 using System.Text.Json;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,8 +18,8 @@ public static class DependencyInjection
         services.AddSingleton(new JsonSerializerOptions(JsonSerializerDefaults.Web));
         services.AddScoped<IDomainEventsDispatcher, MediatorDomainEventDispatcher>();
         services.AddScoped<DomainEventsInterceptor>();
-        services.AddScoped<IOutboxWriter, OutboxWriter<SalesDbContext>>();
-        services.AddScoped<IIntegrationEventPublisher, OutboxIntegrationEventPublisher>();
+        services.AddScoped<IOutboxWriter<SalesModuleMarker>, OutboxWriter<SalesDbContext, SalesModuleMarker>>();
+        services.AddScoped<IIntegrationEventPublisher<SalesModuleMarker>, OutboxIntegrationEventPublisher<SalesModuleMarker>>();
 
         services.AddMediatR(cfg =>
         {
@@ -33,7 +32,7 @@ public static class DependencyInjection
             op.AddInterceptors(sp.GetRequiredService<DomainEventsInterceptor>());
         });
 
-        services.AddScoped<IUnitOfWork, SalesDbContext>();
+        services.AddScoped<ISalesUnitOfWork, SalesDbContext>();
         services.AddScoped<IRepository<Deal, DealId>>(provider =>
             provider.GetRequiredService<SalesDbContext>());
 

@@ -1,6 +1,6 @@
 namespace Shared.Infrastructure.Data.Outbox;
 
-public interface IOutboxWriter
+public interface IOutboxWriter<TModule>
 {
     /// <summary>
     /// Writes a message to the outbox, needs a SaveChanges to actually be persisted

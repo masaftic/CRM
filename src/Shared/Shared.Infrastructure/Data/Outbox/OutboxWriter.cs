@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Shared.Infrastructure.Data.Outbox;
 
-public sealed class OutboxWriter<TDbContext>(
+public class OutboxWriter<TDbContext, TModule>(
     TDbContext dbContext,
-    JsonSerializerOptions jsonSerializerOptions) : IOutboxWriter
+    JsonSerializerOptions jsonSerializerOptions) : IOutboxWriter<TModule>
     where TDbContext : DbContext, IOutboxDbContext
 {
     public void Write(OutboxMessage message)
