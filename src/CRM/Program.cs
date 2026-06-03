@@ -1,4 +1,5 @@
 using SalesModule.Api;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,10 +21,11 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.MapSwaggerUI(setupAction: options =>
+
+    app.MapScalarApiReference(options =>
     {
-        options.SwaggerEndpoint("/openapi/sales.json", "sales");
-        options.SwaggerEndpoint("/openapi/example.json", "example");
+        options.AddDocument("sales", "/openapi/sales.json");
+        options.AddDocument("example", "/openapi/example.json"); 
     });
 
     app.MigrateSalesModuleDatabase();
