@@ -6,7 +6,7 @@ public interface IAggregate
     void ClearDomainEvents();
 }
 
-public class AggregateRoot : IAggregate
+public abstract class AggregateRoot : IAggregate
 {
     private readonly List<IDomainEvent> _domainEvents = [];
     public IReadOnlyList<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();

@@ -5,6 +5,7 @@ using Thinktecture;
 using Shared.Infrastructure.Data;
 using Shared.Infrastructure.Data.Outbox;
 using System.Data;
+using SalesModule.Infrastructure.Data.ReadModels;
 
 namespace SalesModule.Infrastructure.Data;
 
@@ -21,6 +22,7 @@ public class SalesDbContext(DbContextOptions options) : DbContext(options),
     public DbSet<StageSnapshot> StageSnapshots { get; set; }
     public DbSet<DealMovement> DealMovements { get; set; }
     public DbSet<Stage> Stages { get; set; }
+    public DbSet<SalesContact> Contacts { get; set; }
 
     public DbSet<OutboxMessage> OutboxMessages { get; set; }
 
@@ -41,6 +43,15 @@ public class SalesDbContext(DbContextOptions options) : DbContext(options),
             );
 
             b.Property(o => o.JsonData).IsRequired();
+        });
+
+        modelBuilder.Entity<SalesContact>(b =>
+        {
+            b.ToTable("Contacts", DEFAULT_SCHEMA);
+            b.HasKey(c => c.ContactId);
+
+            b.Property(c => c.Name).HasMaxLength(200).IsRequired();
+            b.Property(c => c.CompanyName).HasMaxLength(200).IsRequired();
         });
 
         modelBuilder.Ignore<IDomainEvent>();

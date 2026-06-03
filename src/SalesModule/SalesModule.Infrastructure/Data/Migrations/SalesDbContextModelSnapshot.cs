@@ -141,6 +141,32 @@ namespace SalesModule.Infrastructure.Data.Migrations
                     b.ToTable("Stages", "sales");
                 });
 
+            modelBuilder.Entity("SalesModule.Infrastructure.Data.ReadModels.SalesContact", b =>
+                {
+                    b.Property<Guid>("ContactId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTimeOffset>("SyncedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("ContactId");
+
+                    b.ToTable("Contacts", "sales");
+                });
+
             modelBuilder.Entity("Shared.Infrastructure.Data.Outbox.OutboxMessage", b =>
                 {
                     b.Property<int>("Id")

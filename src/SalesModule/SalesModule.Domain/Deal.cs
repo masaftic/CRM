@@ -128,7 +128,7 @@ public class Deal : AggregateRoot
             Outcome = Outcome
         });
 
-        RaiseDomainEvent(new DealWon(Id));
+        RaiseDomainEvent(new DealWon(Id, ContactId, Name, Value.Amount, Value.Currency));
     }
 
     public void MarkAsLost()

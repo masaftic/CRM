@@ -17,7 +17,7 @@ public record DealDeleted(DealId Id) : IDomainEvent
     public DateTimeOffset OccurredOn { get; init; } = DateTimeOffset.UtcNow;
 }
 
-public record DealWon(DealId Id) : IDomainEvent
+public record DealWon(DealId Id, Guid ContactId, string Name, decimal Amount, string Currency) : IDomainEvent
 {
     public DateTimeOffset OccurredOn { get; init; } = DateTimeOffset.UtcNow;
 }

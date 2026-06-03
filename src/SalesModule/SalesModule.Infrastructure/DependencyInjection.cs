@@ -2,8 +2,11 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SalesModule.Contracts.Contacts.Events;
 using SalesModule.Domain;
 using SalesModule.Infrastructure.Data;
+using SalesModule.Infrastructure.Data.Queries;
+using SalesModule.Infrastructure.IntegrationEventHandlers;
 using Shared.Infrastructure.Data;
 using Shared.Infrastructure.Data.Outbox;
 using Shared.Infrastructure.IntegrationEvents;
@@ -20,6 +23,7 @@ public static class DependencyInjection
         services.AddScoped<DomainEventsInterceptor>();
         services.AddScoped<IOutboxWriter<SalesModuleMarker>, OutboxWriter<SalesDbContext, SalesModuleMarker>>();
         services.AddScoped<IIntegrationEventPublisher<SalesModuleMarker>, OutboxIntegrationEventPublisher<SalesModuleMarker>>();
+        services.AddScoped<IIntegrationEventHandler<ContactCreatedIntegrationEvent>, CacheContactWhenCreated>();
 
         services.AddMediatR(cfg =>
         {
@@ -35,6 +39,11 @@ public static class DependencyInjection
         services.AddScoped<ISalesUnitOfWork, SalesDbContext>();
         services.AddScoped<IRepository<Deal, DealId>>(provider =>
             provider.GetRequiredService<SalesDbContext>());
+        
+        services.AddScoped<IRepository<Pipeline, PipelineId>>(provider =>
+            provider.GetRequiredService<SalesDbContext>());
+        
+        services.AddScoped<IDealsQueries, DealsQueries>();
 
         return services;
     }
