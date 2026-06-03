@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,12 +32,12 @@ public static class SalesModule
 
     public static WebApplication MapSalesModule(this WebApplication app)
     {
-        var salesGroup = app.MapGroup("/sales").WithGroupName("Sales");
+        var salesGroup = app.MapGroup("/sales").WithGroupName("sales");
 
-        var pipelinesGroup = salesGroup.MapGroup("/pipelines").WithGroupName("Pipelines");
+        var pipelinesGroup = salesGroup.MapGroup("/pipelines").WithTags("sales - pipelines");
         pipelinesGroup.MapPipelineEndpoints();
 
-        var dealsGroup = salesGroup.MapGroup("/deals").WithGroupName("Deals");
+        var dealsGroup = salesGroup.MapGroup("/deals").WithTags("sales - deals");
         dealsGroup.MapDealEndpoints();
 
         return app;
