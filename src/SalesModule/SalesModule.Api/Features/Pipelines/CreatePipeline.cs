@@ -1,13 +1,15 @@
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using SalesModule.Contracts.Pipelines.Requests;
 using SalesModule.Domain;
+using SalesModule.Infrastructure.Data;
 using Shared.Infrastructure.Data;
 
 namespace SalesModule.Api.Features.Pipelines;
 
 public static class CreatePipeline
 {
-    public static async Task<IResult> Handle(CreatePipelineRequest request, IUnitOfWork uow)
+    public static async Task<IResult> Handle([FromBody] CreatePipelineRequest request, [FromServices] ISalesUnitOfWork uow)
     {
         var repository = uow.GetRepository<Pipeline, PipelineId>();
 

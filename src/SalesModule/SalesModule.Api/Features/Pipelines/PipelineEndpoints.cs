@@ -7,7 +7,7 @@ namespace SalesModule.Api.Features.Pipelines;
 
 public static class PipelineEndpoints
 {
-    public static void MapPipelineEndpoints(this IEndpointRouteBuilder routes)
+    public static void MapPipelineEndpoints(this RouteGroupBuilder routes)
     {
         routes.MapPost("/", CreatePipeline.Handle)
             .WithValidation<CreatePipelineRequest>();
