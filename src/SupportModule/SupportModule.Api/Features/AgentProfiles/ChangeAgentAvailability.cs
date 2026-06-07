@@ -1,0 +1,29 @@
+using BuildingBlocks.Domain;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Shared.Web.Extensions;
+using SupportModule.Contracts.AgentProfiles.Requests;
+using SupportModule.Domain.SupportAgentProfileRoot;
+using SupportModule.Infrastructure.Data;
+using SupportModule.Api.Features;
+
+namespace SupportModule.Api.Features.AgentProfiles;
+
+public static class ChangeAgentAvailability
+{
+    public static async Task<IResult> Handle(Guid profileId, ChangeAgentAvailabilityRequest request, SupportDbContext db, CancellationToken ct)
+    {
+        var availability = Enum.Parse<AgentAvailabilityStatus>(request.AvailabilityStatus, true);
+
+        var profile = await db.SupportAgentProfiles.FirstOrDefaultAsync(x => x.ProfileId == SupportAgentProfileId.Create(profileId), ct);
+        if (profile is null)
+            return AppError.NotFound("AgentProfile.NotFound", "Agent profile not found.").ToProblemDetails();
+
+        var result = profile.ChangeAvailability(availability, request.ChangedBy);
+        if (result.IsError) return result.Errors.ToProblemDetails();
+
+        await db.SaveChangesAsync(ct);
+
+        return Results.Ok(profile.ToResponse());
+    }
+}

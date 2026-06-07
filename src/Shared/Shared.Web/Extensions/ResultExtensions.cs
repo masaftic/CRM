@@ -14,7 +14,7 @@ public static class ResultExtensions
             : TypedResults.Ok(result.Value);
     }
 
-    public static ProblemHttpResult ToProblemDetails(this List<AppError> errors) => errors.ToProblemDetails();
+    public static ProblemHttpResult ToProblemDetails(this List<AppError> errors) => ((IEnumerable<AppError>)errors).ToProblemDetails();
     public static ProblemHttpResult ToProblemDetails(this AppError error) => new[] { error }.ToProblemDetails();
 
 

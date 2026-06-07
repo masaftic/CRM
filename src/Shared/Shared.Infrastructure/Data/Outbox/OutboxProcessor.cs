@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Shared.Infrastructure.Data;
 using Shared.Infrastructure.Messaging;
 
 namespace Shared.Infrastructure.Data.Outbox;
@@ -12,7 +11,7 @@ public class OutboxProcessor<TDbContext>(
     IServiceScopeFactory serviceScopeFactory,
     JsonSerializerOptions jsonSerializerOptions,
     ILogger<OutboxProcessor<TDbContext>> logger) : BackgroundService
-    where TDbContext : DbContext, IOutboxDbContext, IUnitOfWork
+    where TDbContext : DbContext, IOutboxDbContext
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {

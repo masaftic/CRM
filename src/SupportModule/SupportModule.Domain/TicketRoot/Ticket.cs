@@ -1,5 +1,6 @@
 using BuildingBlocks.Domain;
 using SupportModule.Domain.Events;
+using SupportModule.Domain.TicketCategoryRoot;
 using Thinktecture;
 
 namespace SupportModule.Domain.TicketRoot;
@@ -30,11 +31,9 @@ public class Ticket : AggregateRoot
     public DateTime? ClosedAtUtc { get; private set; }
     public Guid? ClosedBy { get; private set; }
 
+    public TicketCategoryId CategoryId { get; private set; }
     public TicketStatus Status { get; private set; }
     public TicketPriority Priority { get; private set; } = TicketPriority.Low;
-
-    private readonly List<TicketNote> _notes = [];
-    public IReadOnlyCollection<TicketNote> Notes => _notes.AsReadOnly();
 
     private readonly List<TicketAssignment> _assignments = [];
     public IReadOnlyCollection<TicketAssignment> Assignments => _assignments.AsReadOnly();
@@ -49,7 +48,7 @@ public class Ticket : AggregateRoot
     private Ticket() { }
 
 
-    public Ticket(Guid customerId, string title, string description)
+    public Ticket(TicketCategoryId categoryId, Guid customerId, string title, string description, TicketPriority priority = TicketPriority.Low)
     {
         if (customerId == Guid.Empty)
             throw new ArgumentException("CustomerId must be provided.", nameof(customerId));
@@ -58,105 +57,70 @@ public class Ticket : AggregateRoot
         if (string.IsNullOrWhiteSpace(description))
             throw new ArgumentException("Description must be provided.", nameof(description));
 
+        CategoryId = categoryId;
         CustomerId = customerId;
         Title = title.Trim();
         Description = description.Trim();
+        Priority = priority;
 
         Status = TicketStatus.Open;
 
         RaiseDomainEvent(new TicketCreated(TicketId, CustomerId, Title, Priority));
     }
 
-    public void AssignAgent(Guid agentId, Guid assignedBy, string? reason = null)
+    public Result AssignAgent(Guid agentId, Guid assignedBy, string? reason = null)
     {
         if (agentId == Guid.Empty)
-            throw new ArgumentException("AgentId must be provided.", nameof(agentId));
+            return TicketErrors.ActorRequired;
         if (assignedBy == Guid.Empty)
-            throw new ArgumentException("AssignedBy must be provided.", nameof(assignedBy));
+            return TicketErrors.ActorRequired;
 
-        if (AssignedAgentId.HasValue && AssignedAgentId == agentId) return;
+        if (AssignedAgentId.HasValue && AssignedAgentId == agentId) return Result.Ok();
 
         var previousAgentId = AssignedAgentId;
         _assignments.Add(new TicketAssignment(TicketId, previousAgentId, agentId, assignedBy, reason));
         AssignedAgentId = agentId;
 
         RaiseDomainEvent(new TicketAssigned(TicketId, previousAgentId, agentId, assignedBy));
+
+        return Result.Ok();
     }
 
-    public void ChangePriority(TicketPriority priority, Guid changedBy, string? reason = null)
+    public Result ChangePriority(TicketPriority priority, Guid changedBy, string? reason = null)
     {
         if (changedBy == Guid.Empty)
-            throw new ArgumentException("ChangedBy must be provided.", nameof(changedBy));
+            return TicketErrors.ActorRequired;
         if (priority == TicketPriority.Urgent && string.IsNullOrWhiteSpace(reason))
-            throw new InvalidOperationException("Urgent priority changes require a reason.");
-        if (priority == Priority) return;
+            return TicketErrors.UrgentPriorityRequiresReason;
+        if (priority == Priority) return Result.Ok();
 
         var previousPriority = Priority;
         _priorityChanges.Add(new TicketPriorityChange(TicketId, previousPriority, priority, changedBy, reason));
         Priority = priority;
 
         RaiseDomainEvent(new TicketPriorityChanged(TicketId, previousPriority, priority, changedBy));
+
+        return Result.Ok();
     }
 
-    public void AddCustomerReply(string message)
+    public Result CloseTicket(Guid closedBy)
     {
-        EnsureMessageProvided(message);
+        var transitionResult = TransitionTo(TicketStatus.Closed, closedBy);
+        if (transitionResult.IsError) return transitionResult;
 
-        _notes.Add(new CustomerTicketReply
-        {
-            TicketId = TicketId,
-            Content = message.Trim(),
-        });
-
-        RaiseDomainEvent(new CustomerRepliedToTicket(TicketId, CustomerId));
-    }
-
-    public void AddAgentReply(string message, Guid agentId)
-    {
-        EnsureMessageProvided(message);
-        EnsureActorProvided(agentId, nameof(agentId));
-
-        _notes.Add(new AgentTicketReply
-        {
-            TicketId = TicketId,
-            Content = message.Trim(),
-            AgentId = agentId
-        });
-
-        RaiseDomainEvent(new AgentRepliedToTicket(TicketId, agentId));
-    }
-
-    public void AddInternalNote(string message, Guid addedBy)
-    {
-        EnsureMessageProvided(message);
-        EnsureActorProvided(addedBy, nameof(addedBy));
-
-        _notes.Add(new InternalTicketNote
-        {
-            TicketId = TicketId,
-            Content = message.Trim(),
-            AddedBy = addedBy
-        });
-
-        RaiseDomainEvent(new InternalTicketNoteAdded(TicketId, addedBy));
-    }
-
-    public void CloseTicket(Guid closedBy)
-    {
-        EnsureActorProvided(closedBy, nameof(closedBy));
-
-        TransitionTo(TicketStatus.Closed, closedBy);
         ClosedAtUtc = DateTime.UtcNow;
         ClosedBy = closedBy;
 
         RaiseDomainEvent(new TicketClosed(TicketId, closedBy));
+
+        return Result.Ok();
     }
 
-    public void ReOpenTicket(Guid reOpenedBy)
+    public Result ReOpenTicket(Guid reOpenedBy)
     {
-        EnsureActorProvided(reOpenedBy, nameof(reOpenedBy));
+        var transitionResult = TransitionTo(TicketStatus.Open, reOpenedBy);
+        if (transitionResult.IsError) return transitionResult;
 
-        TransitionTo(TicketStatus.Open, reOpenedBy);
         ResolvedAtUtc = null;
         ResolvedBy = null;
         ResolutionSummary = null;
@@ -164,39 +128,41 @@ public class Ticket : AggregateRoot
         ClosedBy = null;
 
         RaiseDomainEvent(new TicketReopened(TicketId, reOpenedBy));
+
+        return Result.Ok();
     }
 
-    public void ResolveTicket(Guid resolvedBy, string? resolutionSummary = null)
+    public Result ResolveTicket(Guid resolvedBy, string? resolutionSummary = null)
     {
-        EnsureActorProvided(resolvedBy, nameof(resolvedBy));
+        var transitionResult = TransitionTo(TicketStatus.Resolved, resolvedBy);
+        if (transitionResult.IsError) return transitionResult;
 
-        TransitionTo(TicketStatus.Resolved, resolvedBy);
         ResolvedAtUtc = DateTime.UtcNow;
         ResolvedBy = resolvedBy;
         ResolutionSummary = string.IsNullOrWhiteSpace(resolutionSummary) ? null : resolutionSummary.Trim();
 
         RaiseDomainEvent(new TicketResolved(TicketId, resolvedBy));
+
+        return Result.Ok();
     }
 
-    public void StartProgress(Guid agentId)
+    public Result StartProgress(Guid agentId)
     {
-        EnsureActorProvided(agentId, nameof(agentId));
-
-        TransitionTo(TicketStatus.InProgress, agentId);
+        return TransitionTo(TicketStatus.InProgress, agentId);
     }
 
-    public void WaitForCustomer(Guid agentId)
+    public Result WaitForCustomer(Guid agentId)
     {
-        EnsureActorProvided(agentId, nameof(agentId));
-
-        TransitionTo(TicketStatus.WaitingForCustomer, agentId);
+        return TransitionTo(TicketStatus.WaitingForCustomer, agentId);
     }
 
-    private void TransitionTo(TicketStatus to, Guid transitionedBy)
+    private Result TransitionTo(TicketStatus to, Guid transitionedBy)
     {
-        if (Status == to) return;
+        if (transitionedBy == Guid.Empty)
+            return TicketErrors.ActorRequired;
+        if (Status == to) return Result.Ok();
         if (!CanTransition(Status, to))
-            throw new InvalidOperationException($"Cannot transition ticket from {Status} to {to}.");
+            return TicketErrors.InvalidTransition(Status, to);
 
         var from = Status;
         _transitions.Add(new TicketTransition
@@ -211,6 +177,8 @@ public class Ticket : AggregateRoot
         Status = to;
 
         RaiseDomainEvent(new TicketStatusChanged(TicketId, from, to, transitionedBy));
+
+        return Result.Ok();
     }
 
     private static bool CanTransition(TicketStatus from, TicketStatus to) =>
@@ -229,15 +197,4 @@ public class Ticket : AggregateRoot
             _ => false
         };
 
-    private static void EnsureMessageProvided(string message)
-    {
-        if (string.IsNullOrWhiteSpace(message))
-            throw new ArgumentException("Message must be provided.", nameof(message));
-    }
-
-    private static void EnsureActorProvided(Guid actorId, string paramName)
-    {
-        if (actorId == Guid.Empty)
-            throw new ArgumentException("Actor id must be provided.", paramName);
-    }
 }

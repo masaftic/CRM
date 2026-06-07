@@ -1,4 +1,5 @@
 using BuildingBlocks.Domain;
+using SupportModule.Domain.TicketCommentRoot;
 using SupportModule.Domain.TicketRoot;
 
 namespace SupportModule.Domain.Events;
@@ -23,17 +24,17 @@ public record TicketStatusChanged(TicketId TicketId, TicketStatus From, TicketSt
     public DateTimeOffset OccurredOn { get; init; } = DateTimeOffset.UtcNow;
 }
 
-public record CustomerRepliedToTicket(TicketId TicketId, Guid CustomerId) : IDomainEvent
+public record CustomerRepliedToTicket(TicketCommentId CommentId, TicketId TicketId, Guid CustomerId) : IDomainEvent
 {
     public DateTimeOffset OccurredOn { get; init; } = DateTimeOffset.UtcNow;
 }
 
-public record AgentRepliedToTicket(TicketId TicketId, Guid AgentId) : IDomainEvent
+public record AgentRepliedToTicket(TicketCommentId CommentId, TicketId TicketId, Guid AgentId) : IDomainEvent
 {
     public DateTimeOffset OccurredOn { get; init; } = DateTimeOffset.UtcNow;
 }
 
-public record InternalTicketNoteAdded(TicketId TicketId, Guid AddedBy) : IDomainEvent
+public record InternalTicketNoteAdded(TicketCommentId CommentId, TicketId TicketId, Guid AddedBy) : IDomainEvent
 {
     public DateTimeOffset OccurredOn { get; init; } = DateTimeOffset.UtcNow;
 }

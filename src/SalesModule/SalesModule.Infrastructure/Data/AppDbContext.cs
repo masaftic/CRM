@@ -9,7 +9,7 @@ using SalesModule.Infrastructure.Data.ReadModels;
 
 namespace SalesModule.Infrastructure.Data;
 
-public class SalesDbContext(DbContextOptions options) : DbContext(options),
+public class SalesDbContext(DbContextOptions<SalesDbContext> options) : DbContext(options),
     IOutboxDbContext,
     IRepository<Deal, DealId>,
     IRepository<Pipeline, PipelineId>,
